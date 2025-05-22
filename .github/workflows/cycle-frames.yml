@@ -11,8 +11,24 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v3
 
+      # Enforce 1-minute rate limit
+      - name: Rate limit check
+        id: ratelimit
+        run: |
+          NOW=$(date +%s)
+          LAST=$(cat .last_run 2>/dev/null || echo 0)
+          GAP=$(( NOW - LAST ))
+          if [ $GAP -lt 60 ]; then
+            echo "Run blocked due to rate limit ($GAP seconds since last run)"
+            echo "ratelimited=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ratelimited=false" >> "$GITHUB_OUTPUT"
+            echo $NOW > .last_run
+          }
+
       # Read current index from the pointer file
       - name: Read current index
+        if: steps.ratelimit.outputs.ratelimited == 'false'
         id: idx
         run: |
           INDEX=$(cat frame_index.txt)
@@ -20,11 +36,13 @@ jobs:
 
       # Copy the corresponding frame over main.png
       - name: Replace main.png with selected frame
+        if: steps.ratelimit.outputs.ratelimited == 'false'
         run: |
           cp "frames/${{ steps.idx.outputs.index }}.png" main.png
 
       # Calculate and write the next index (wrap 4 → 1)
       - name: Bump pointer
+        if: steps.ratelimit.outputs.ratelimited == 'false'
         id: bump
         run: |
           CUR=${{ steps.idx.outputs.index }}
@@ -35,16 +53,17 @@ jobs:
 
       # Commit only if something actually changed
       - name: Commit & push if updated
+        if: steps.ratelimit.outputs.ratelimited == 'false'
         run: |
           git config --global user.name  "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add main.png frame_index.txt
+          git add main.png frame_index.txt .last_run
           git diff --cached --quiet && echo "No changes" || \
             (git commit -m "Auto-update to frame ${{ steps.bump.outputs.cur }}" && git push)
 
       # Discord notification for rollover (4 → 1)
       - name: Notify Discord (rollover)
-        if: ${{ success() && steps.bump.outputs.cur == '1' }}
+        if: ${{ success() && steps.ratelimit.outputs.ratelimited == 'false' && steps.bump.outputs.cur == '1' }}
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \
@@ -53,7 +72,7 @@ jobs:
 
       # Discord notification for normal frame update
       - name: Notify Discord (normal)
-        if: ${{ success() && steps.bump.outputs.cur != '1' }}
+        if: ${{ success() && steps.ratelimit.outputs.ratelimited == 'false' && steps.bump.outputs.cur != '1' }}
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \

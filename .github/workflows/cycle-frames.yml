@@ -24,7 +24,7 @@ jobs:
           else
             echo "ratelimited=false" >> "$GITHUB_OUTPUT"
             echo $NOW > .last_run
-          }
+          fi
 
       # Read current index from the pointer file
       - name: Read current index

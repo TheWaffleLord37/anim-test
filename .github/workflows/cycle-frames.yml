@@ -11,31 +11,6 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v3
 
-      # Rate limit: only proceed if at least 60 seconds since last run
-      - name: Rate-limit check (exit if last run < 60 s ago)
-        id: ratelimit
-        run: |
-          NOW=$(date +%s)
-          FILE="last_run.txt"
-
-          if [ -f "$FILE" ]; then
-            LAST=$(cat "$FILE")
-          else
-            LAST=0
-          fi
-
-          DIFF=$((NOW - LAST))
-          echo "Now=$NOW  Last=$LAST  Diff=$DIFF"
-
-          if [ "$DIFF" -lt 60 ]; then
-            echo "run_allowed=false" >> "$GITHUB_OUTPUT"
-            echo "Rate-limit hit – exiting."
-            exit 0
-          fi
-
-          echo $NOW > "$FILE"
-          echo "run_allowed=true" >> "$GITHUB_OUTPUT"
-
       # Read current index from the pointer file
       - name: Read current index
         id: idx
@@ -66,15 +41,6 @@ jobs:
           git add main.png frame_index.txt
           git diff --cached --quiet && echo "No changes" || \
             (git commit -m "Auto-update to frame ${{ steps.bump.outputs.cur }}" && git push)
-
-      # Commit updated last_run.txt
-      - name: Commit updated last_run.txt
-        run: |
-          git config --global user.name  "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add last_run.txt
-          git diff --cached --quiet && echo "No timestamp change" || \
-            (git commit -m "Update last_run timestamp" && git push)
 
       # Discord notification for rollover (4 → 1)
       - name: Notify Discord (rollover)

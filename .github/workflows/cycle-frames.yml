@@ -42,9 +42,9 @@ jobs:
           git diff --cached --quiet && echo "No changes" || \
             (git commit -m "Auto-update to frame ${{ steps.bump.outputs.cur }}" && git push)
 
-      # 10-second delay before notifications
-      - name: Wait 10 seconds
-        run: sleep 10
+      # 30-second delay before notifications
+      - name: Wait 30 seconds
+        run: sleep 30
 
       # Discord notification for rollover (4 → 1)
       - name: Notify Discord (rollover)

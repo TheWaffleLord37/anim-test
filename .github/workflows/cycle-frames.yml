@@ -41,3 +41,12 @@ jobs:
           git add main.png frame_index.txt
           git diff --cached --quiet && echo "No changes" || \
             (git commit -m "Auto-update to frame $CUR" && git push)
+
+      # Discord notification (runs on successful workflow completion)
+      - name: Notify Discord
+        if: success()
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"Template updated to frame **${{ steps.idx.outputs.index }}**!\"}" \
+               ${{ secrets.DISCORD_WEBHOOK }}

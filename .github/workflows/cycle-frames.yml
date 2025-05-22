@@ -1,7 +1,9 @@
 name: Cycle main.png through frames
 
 on:
-  workflow_dispatch:      # Only manual trigger from the Actions tab
+  schedule:
+    - cron: '0 8,20 * * *'  # Runs at 1:00 AM and 1:00 PM PDT (08:00 and 20:00 UTC)
+  workflow_dispatch:         # Allows manual trigger from Actions tab
 
 jobs:
   update-frame:

@@ -61,6 +61,11 @@ jobs:
           git diff --cached --quiet && echo "No changes" || \
             (git commit -m "Auto-update to frame ${{ steps.bump.outputs.cur }}" && git push)
 
+      # 20-second delay before notifications
+      - name: Wait 20 seconds
+        if: steps.ratelimit.outputs.ratelimited == 'false'
+        run: sleep 20
+
       # Discord notification for rollover (4 → 1)
       - name: Notify Discord (rollover)
         if: ${{ success() && steps.ratelimit.outputs.ratelimited == 'false' && steps.bump.outputs.cur == '1' }}

@@ -47,5 +47,5 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d "{\"content\": \"## Flutterdance template updated to frame **${{ steps.idx.outputs.index }}**\\nRefresh your template or reopen it with the link below!\\n# [Template](<https://pxls.space/#x=1450&y=1368&scale=8&template=https%3A%2F%2Fraw.githubusercontent.com%2FTheWaffleLord37%2FManePxls-Templates%2Frefs%2Fheads%2Fmain%2FCanvas%2090%2FFlutterdance.png&ox=1396&oy=1321&tw=108&title=Flutterdance&convert=nearestCustom>)\\n-# dinkdonk new frame [⠀](https://cdn.discordapp.com/emojis/1375011774067376128.webp?size=128&animated=true)\"}" \
+               -d "{\"content\": \"<@&438804971300061185>\\n## Flutterdance template updated to frame **${{ steps.idx.outputs.index }}**\\nRefresh your template or reopen it with the link below!\\n# [Template](<https://pxls.space/#x=1450&y=1368&scale=8&template=https%3A%2F%2Fraw.githubusercontent.com%2FTheWaffleLord37%2FManePxls-Templates%2Frefs%2Fheads%2Fmain%2FCanvas%2090%2FFlutterdance.png&ox=1396&oy=1321&tw=108&title=Flutterdance&convert=nearestCustom>)\\n-# dinkdonk new frame [⠀](https://cdn.discordapp.com/emojis/1375011774067376128.webp?size=128&animated=true)\"}" \
                ${{ secrets.DISCORD_WEBHOOK }}

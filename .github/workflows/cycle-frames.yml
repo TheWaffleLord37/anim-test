@@ -2,7 +2,7 @@ name: Cycle main.png through frames
 
 on:
   schedule:
-    - cron: '0 8,20 * * *'  # Runs at 1:00 AM and 1:00 PM PDT (08:00 and 20:00 UTC)
+    - cron: '30 8,20 * * *'  # Runs at 1:30 AM and 1:30 PM PDT (08:30 and 20:30 UTC)
   workflow_dispatch:         # Allows manual trigger from Actions tab
 
 jobs:

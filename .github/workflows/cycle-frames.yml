@@ -11,6 +11,21 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v3
 
+      # Check if last run was less than 60 seconds ago
+      - name: Enforce 1-minute rate limit
+        id: ratelimit
+        run: |
+          if [ -f last_run.txt ]; then
+            LAST=$(cat last_run.txt)
+            NOW=$(date +%s)
+            DIFF=$((NOW - LAST))
+            if [ "$DIFF" -lt 60 ]; then
+              echo "Last run was $DIFF seconds ago. Exiting to respect rate limit."
+              exit 0
+            fi
+          fi
+          date +%s > last_run.txt
+
       # Read current index from the pointer file
       - name: Read current index
         id: idx

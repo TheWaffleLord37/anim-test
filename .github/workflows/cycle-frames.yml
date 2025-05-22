@@ -1,0 +1,43 @@
+name: Cycle main.png through frames
+
+on:
+  schedule:
+    # start of every 5th minute (GitHub's minimum interval)
+    - cron: '*/5 * * * *'
+  workflow_dispatch:      # lets you trigger it manually from the Actions tab
+
+jobs:
+  update-frame:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+
+      # Read current index from the pointer file
+      - name: Read current index
+        id: idx
+        run: |
+          INDEX=$(cat frame_index.txt)
+          echo "index=$INDEX" >> "$GITHUB_OUTPUT"
+
+      # Copy the corresponding frame over main.png
+      - name: Replace main.png with selected frame
+        run: |
+          cp "frames/${{ steps.idx.outputs.index }}.png" main.png
+
+      # Calculate and write the next index (wrap 4 → 1)
+      - name: Bump pointer
+        run: |
+          CUR=${{ steps.idx.outputs.index }}
+          NEXT=$(( CUR == 4 ? 1 : CUR + 1 ))
+          echo $NEXT > frame_index.txt
+
+      # Commit only if something actually changed
+      - name: Commit & push if updated
+        run: |
+          git config --global user.name  "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add main.png frame_index.txt
+          git diff --cached --quiet && echo "No changes" || \
+            (git commit -m "Auto-update to frame $CUR" && git push)
